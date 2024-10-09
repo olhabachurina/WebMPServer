@@ -110,7 +110,7 @@ namespace WebMusicPortal.Controllers
             await _songService.AddSongAsync(songDTO);
 
             _logger.LogInformation("Song created successfully.");
-            return CreatedAtAction(nameof(GetSongById), new { id = songDTO.SongId }, songDTO);
+            return CreatedAtAction(nameof(GetSongById), new { id = songDTO.SongId }, songDTO); // Вернуть объект с videoUrl
         }
 
         [HttpPut("{id}")]
@@ -142,7 +142,7 @@ namespace WebMusicPortal.Controllers
                     return BadRequest("Video file exceeds the size limit of 100 MB.");
                 }
                 songDTO.VideoFilePath = await SaveFileAsync(songDTO.VideoFile, "videos");
-                songDTO.VideoUrl = Url.Content($"~/{songDTO.VideoFilePath}");
+                songDTO.VideoUrl = Url.Content($"~/{songDTO.VideoFilePath.Replace("\\", "/")}");
             }
 
             var genre = await _genreService.GetGenreByIdAsync(songDTO.GenreId);
@@ -188,7 +188,7 @@ namespace WebMusicPortal.Controllers
                 await file.CopyToAsync(stream);
             }
 
-            return filePath;
+            return filePath.Replace("\\", "/"); // Заменяем обратные слэши на прямые
         }
 
         private async Task<UserDTO> GetUserByNameAsync(string userName)
